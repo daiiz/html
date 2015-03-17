@@ -1,0 +1,93 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+import sys
+import os
+import os.path
+import shutil
+
+# ビールの絵文字
+created_marc = u"\U0001F37A"
+# 寿司の絵文字
+completed_marc = u"\U0001F363"
+# 引数として意味をなす文字列
+options = [
+    'b',  # basic html
+    'p',  # html with polymer library
+    'ca', # chrome apps
+    #'ce', # chrome extensions
+    #'fa'  # firefox apps
+]
+# コピーされるファイル群
+files = {
+    "b": [
+        ["template/basic_html.html", "index.html"],
+        ["template/icon.png", "icon.png"],
+        ["template/basic_app.js", "app.js"],
+        ["template/basic_app.css", "app.css"]
+    ],
+    "p": [
+        ["template/polymer_html.html", "index.html"],
+        ["template/polymer_bower.json", "bower.json"],
+        ["template/polymer_my-element.html", "my-element.html"],
+        ["template/icon.png", "icon.png"],
+        ["template/basic_app.js", "app.js"],
+        ["template/basic_app.css", "app.css"]
+    ],
+    "ca": [
+        # `b`または`p`との併用を想定
+        ["template/chromeapp_manifest.json", "manifest.json"],
+        ["template/chromeapp_background.js", "background.js"]
+    ]
+}
+# 実行ファイルが配置されている場所
+this_dir = os.path.abspath(os.path.dirname(__file__))
+# 実行されているディレクトリ
+cwd = os.getcwd()
+
+def copy_polymer():
+    fs = files['p']
+    copy_file(fs)
+    pass
+
+def copy_chromeapp():
+    fs = files['ca']
+    copy_file(fs)
+    pass
+
+def copy_basic():
+    fs = files['b']
+    copy_file(fs)
+
+def copy_file(fs):
+    for f in fs:
+        ofn = f[0]
+        cfn = f[1]
+        if os.path.isfile(cfn) == False:
+            full_ofn = "{}/{}".format(this_dir, ofn)
+            full_cfn = "{}/{}".format(cwd, cfn)
+            shutil.copyfile(full_ofn, full_cfn)
+            print(u"{}  {} as {}".format(created_marc, ofn, cfn))
+
+def main(argvs = sys.argv):
+    # 引数を解析
+    opts = [];
+    for arg in argvs:
+        if arg in options:
+            opts.append(arg)
+    # オプション別の挙動
+    for opt in opts:
+        if opt == 'p':
+            copy_polymer()
+        elif opt == 'b':
+            copy_basic()
+        elif opt == 'ca':
+            copy_chromeapp()
+    # オプションが与えられなかった場合
+    if len(opts) == 0:
+        copy_basic()
+    # 作業完了
+    print(completed_marc)
+
+if __name__ == '__main__':
+    main()
